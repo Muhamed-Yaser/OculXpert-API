@@ -2,8 +2,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\DoctorController;
-use App\Http\Controllers\Doctor\UserController;
 use App\Http\Controllers\Doctor\PostController;
+use App\Http\Controllers\Doctor\ImageController;
 use App\Http\Controllers\Doctor\ReactController;
 use App\Http\Controllers\Doctor\CommentController;
 
@@ -15,13 +15,6 @@ Route::group([
     Route::post('/login', [DoctorController::class, 'login']);
     Route::post('/logout', [DoctorController::class, 'logout']);
     Route::get('/myProfile', [DoctorController::class, 'doctorProfile']);
-});
-
-//User Images
-Route::group([
-    'prefix' => 'doctor'
-], function () {
-    Route::get('/showUserImage', [UserController::class, 'showUserImage']);
 });
 
 //Post

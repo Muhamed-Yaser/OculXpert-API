@@ -18,13 +18,12 @@ Route::group([
     Route::get('/myProfile', [UserController::class, 'userProfile']);
 });
 
-//User Images
+//user Image
 Route::group([
     'prefix' => 'user'
 ], function () {
-    Route::post('/uploadImage', [ImageController::class, 'uploadImage']);
+    Route::post('uploadUserImages/{user_id}', [ImageController::class, 'uploadUserImages']);
 });
-
 //Post
 Route::group([
     'prefix' => 'user'

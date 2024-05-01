@@ -9,8 +9,15 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new User;
+    }
 
     public function login(Request $request){
+
     	$validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
@@ -29,56 +36,60 @@ class UserController extends Controller
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|min:6',
+            'user_photo' => 'required|image|mimes:jpg,png,jpeg'
         ]);
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
         $user = User::create(array_merge(
                     $validator->validated(),
-                    ['password' => bcrypt($request->password)]
+                    [
+                        'password' => bcrypt($request->password),
+                        'user_photo' => $request->file('user_photo')->store('public/users')
+                    ]
                 ));
+
+        $verificationToken = $this->generateToken($request->email);
+
         return response()->json([
             'message' => 'User successfully registered',
-            'user' => $user
+            'user' => $user,
+            'verification_token' => $verificationToken->verification_token,
         ], 201);
     }
 
 
     public function logout() {
-        if (auth()->guard('user')->check()){
+
             auth()->guard('user')->logout();
             return response()->json(['message' => 'User successfully signed out']);
-            }
-            else
-            {
-                return response()->json([
-                    "status" => '401',
-                    "Message" => 'U are unauthorized'
-                ]);
-            }
+
     }
 
     public function userProfile() {
-        if (auth()->guard('user')->check()){
+
 
             $userData = Auth::guard('user')->user();
             return response()->json([
             "status" => '200',
             "Message" => $userData
         ]);
-            }
-            else {
-                return response()->json([
-                    "status" => '401',
-                    "Message" => 'U are unauthorized'
-                ]);
-            }      }
+                }
             protected function createNewToken($token){
                 return response()->json([
                     'access_token' => $token,
                     'token_type' => 'bearer',
                     // 'expires_in' => auth()->factory()->getTTL() * 60,
-                    'user' => auth()->user()
+                    'user' => auth()->guard('user')->user()
                 ]);
+            }
+
+            public function generateToken($email) {
+                $token = substr(md5(rand(0,9) .$email .time()) , 0 , 32);
+                $userNewToken = $this->model->whereEmail($email)->first();
+                $userNewToken->verification_token = $token;
+                $userNewToken ->save() ;
+
+                return $userNewToken;
             }
 }

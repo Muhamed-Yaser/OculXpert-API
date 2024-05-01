@@ -23,41 +23,25 @@ class DoctorController extends Controller
     }
 
     public function logout() {
-        if (auth()->guard('doctor')->check()){
+
             auth()->guard('doctor')->logout();
             return response()->json(['message' => 'Doctor successfully signed out']);
-            }
-            else
-            {
-                return response()->json([
-                    "status" => '401',
-                    "Message" => 'U are unauthorized'
-                ]);
-            }
     }
     public function doctorProfile() {
-        if (auth()->guard('doctor')->check()){
+
 
             $doctorData = Auth::guard('doctor')->user();
             return response()->json([
             "status" => '200',
             "Message" => $doctorData
         ]);
-            }
-            else {
-                return response()->json([
-                    "status" => '401',
-                    "Message" => 'U are unauthorized'
-                ]);
-            }
-
     }
     protected function createNewToken($token){
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             // 'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'doctor' => auth()->guard('doctor')->user()
         ]);
     }
 }

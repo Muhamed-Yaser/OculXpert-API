@@ -24,34 +24,21 @@ class AdminController extends Controller
     }
 
     public function logout() {
-        if (auth()->guard('admin')->check()){
+
             auth()->guard('admin')->logout();
             return response()->json(['message' => 'Admin successfully signed out']);
-            }
-            else
-            {
-                return response()->json([
-                    "status" => '401',
-                    "Message" => 'U are unauthorized'
-                ]);
-            }
+
     }
 
     public function adminProfile() {
-        if (auth()->guard('admin')->check()){
+
 
         $adminData = Auth::guard('admin')->user();
         return response()->json([
         "status" => '200',
         "Message" => $adminData
     ]);
-        }
-        else {
-            return response()->json([
-                "status" => '401',
-                "Message" => 'U are unauthorized'
-            ]);
-        }
+       
     }
     protected function createNewToken($token){
         return response()->json([

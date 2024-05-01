@@ -12,6 +12,7 @@ class Doctor extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'email',
+        'doctor_photo',
         'password'
     ];
     protected $hidden = [
