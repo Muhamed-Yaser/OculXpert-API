@@ -45,4 +45,14 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Image::class);
     }
 
+    public static function rules()
+    {
+        return [
+            'name' => 'required|string|between:2,100',
+            'email' => 'required|string|email|max:100|unique:users',
+            'password' => 'required|string|min:6',
+            'user_photo' => 'required|image|mimes:jpg,png,jpeg'
+        ];
+    }
+
 }

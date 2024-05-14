@@ -16,13 +16,14 @@ Route::group([
     Route::post('/login', [UserController::class, 'login']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/myProfile', [UserController::class, 'userProfile']);
+    Route::post('/uploadProfileImage', [UserController::class, 'uploadProfileImage']);
 });
 
 //user Image
 Route::group([
     'prefix' => 'user'
 ], function () {
-    Route::post('uploadUserImages/{user_id}', [ImageController::class, 'uploadUserImages']);
+    Route::post('uploadUserImages', [ImageController::class, 'uploadUserImages']);
 });
 //Post
 Route::group([

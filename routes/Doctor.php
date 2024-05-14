@@ -15,7 +15,11 @@ Route::group([
     Route::post('/login', [DoctorController::class, 'login']);
     Route::post('/logout', [DoctorController::class, 'logout']);
     Route::get('/myProfile', [DoctorController::class, 'doctorProfile']);
+    Route::post('/uploadDoctorProfileImage', [DoctorController::class, 'uploadDoctorProfileImage']);
 });
+
+//Get all doctors
+Route::get('doctor/all-doctors',[DoctorController::class ,'allDoctors']);
 
 //Post
 Route::group([
