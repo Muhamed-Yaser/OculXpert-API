@@ -11,26 +11,19 @@ class DoctorSeeder extends Seeder
 {
     public function run(): void
     {
-        $photos = [
-            'doctor1.jpg' => 'doctors-profile-photo/doctor1.jpg',
-            'DR.Ibrahim.jpg' => 'doctors-profile-photo/DR.Ibrahim.jpg',
-            'doctor2.jpg' => 'doctors-profile-photo/doctor2.jpg',
-            'doctor3.png' => 'doctors-profile-photo/doctor3.png',
-            'doctor4.jpg' => 'doctors-profile-photo/doctor4.jpg',
-            'doctor5.jpg' => 'doctors-profile-photo/doctor5.jpg',
-            'doctor6.jpg' => 'doctors-profile-photo/doctor6.jpg',
-            'doctor7.jpg' => 'doctors-profile-photo/doctor7.jpg',
+        $images = [
+            'doctor1.jpg',
+            'doctor2.jpg',
+            'doctor3.jpg',
+            'doctor4.jpg',
+            'doctor5.jpg',
+            'doctor6.jpg',
+            'doctor7.jpg',
+            'DR.Ibrahim.jpg'
         ];
 
-        // Copy images from seeder-images to storage/app/public/doctors-profile-photo
-        foreach ($photos as $filename => $path) {
-            $sourcePath = database_path("seeders/DocImageSeed/$filename");
-            if (file_exists($sourcePath) && !Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->put($path, file_get_contents($sourcePath));
-            } else {
-                // Log an error or notify that the file does not exist
-                echo "File does not exist: $sourcePath";
-            }
+        foreach ($images as $image) {
+            Storage::disk('public')->put('doctors-profile-photo/' . $image, file_get_contents(database_path('seeders/DocImageSeed/' . $image)));
         }
 
         Doctor::create([
