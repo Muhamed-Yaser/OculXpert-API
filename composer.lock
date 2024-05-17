@@ -4,8 +4,47 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfb1f299796d1ddd5bca6944121ed7bd",
+    "content-hash": "4a972595a9c35015bea374d30e6330da",
     "packages": [
+        {
+            "name": "abdelrahmanbl/laravel-uploadable",
+            "version": "4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AbdelrahmanBl/laravel-uploadable.git",
+                "reference": "ceb9b8a7ff6052843625dcce1659253c7e2b3f8a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AbdelrahmanBl/laravel-uploadable/zipball/ceb9b8a7ff6052843625dcce1659253c7e2b3f8a",
+                "reference": "ceb9b8a7ff6052843625dcce1659253c7e2b3f8a",
+                "shasum": ""
+            },
+            "require-dev": {
+                "orchestra/testbench": "^7.0|^8.0|^9.0",
+                "pestphp/pest": "^1.20|^2.0"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "Bl\\LaravelUploadable\\": "src/",
+                    "Bl\\LaravelUploadable\\Test\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Abdelrahman Bl",
+                    "email": "abdelrahmangamal990@gmail.com"
+                }
+            ],
+            "description": "this package adding behaviour to a model for self uploading images like avatar or any files type.",
+            "support": {
+                "issues": "https://github.com/AbdelrahmanBl/laravel-uploadable/issues",
+                "source": "https://github.com/AbdelrahmanBl/laravel-uploadable/tree/4.1"
+            },
+            "time": "2024-05-15T18:36:23+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.11.0",

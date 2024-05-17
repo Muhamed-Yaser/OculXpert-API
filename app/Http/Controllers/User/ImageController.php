@@ -28,23 +28,26 @@ class ImageController extends Controller
         $email = $request->input('email');
         $user = User::where('email', $email)->first();
 
-        $filenames = [];
+        $imagesUploadedData = [];
+
         foreach ($request->file('user_photos') as $photo) {
             $imageName = Str::random(32) . '.' . $photo->getClientOriginalExtension();
-            $filenames[] = $imageName;
-            Storage::disk('public')->put('images/' . $imageName, file_get_contents($photo));
-        }
+            Storage::disk('public')->put('follow-up/' . $imageName, file_get_contents($photo));
 
-        foreach ($filenames as $filename) {
-            $images = Image::create([
+            $image = Image::create([
                 'user_id' => $user->id,
-                'filename' => $filename,
+                'filename' => $imageName,
             ]);
+
+            $imageUrl = url('storage/follow-up/' . $imageName);
+            $image->filename = $imageUrl;
+
+            $imagesUploadedData[] = $image;
         }
 
         return response()->json([
             'success' => 'Images uploaded successfully.',
-            'imagesUploadedData' => $images
-        ],201);
+            'imagesUploadedData' => $imagesUploadedData
+        ], 201);
     }
 }

@@ -23,11 +23,13 @@ class AdminController extends Controller
         return $this->createNewToken($token);
     }
 
-    public function logout() {
+    public function logout(Request $request)
+    {
+        $email = $request->input('email');
 
-            auth()->guard('admin')->logout();
-            return response()->json(['message' => 'Admin successfully signed out']);
+        $admin = Admin::where('email', $email)->first();
 
+        if ($admin) return response()->json(['message' => 'admin successfully signed out']);
     }
 
     public function adminProfile() {
@@ -38,7 +40,7 @@ class AdminController extends Controller
         "status" => '200',
         "Message" => $adminData
     ]);
-       
+
     }
     protected function createNewToken($token){
         return response()->json([

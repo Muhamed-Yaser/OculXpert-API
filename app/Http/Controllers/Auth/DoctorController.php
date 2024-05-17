@@ -26,18 +26,21 @@ class DoctorController extends Controller
         return $this->createNewToken($token);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
+        $email = $request->input('email');
 
-        auth()->guard('doctor')->logout();
-        return response()->json(['message' => 'Doctor successfully signed out']);
+        $doctor = Doctor::where('email', $email)->first();
+
+        if ($doctor) return response()->json(['message' => 'Doctor successfully signed out']);
     }
+
     public function doctorProfile(Request $request)
     {
         $email = $request->input('email');
         $doctorData = Doctor::where('email', $email)->first();
 
-        $doctorPhotoUrl = Storage::url('doctors/' . $doctorData->doctor_photo);
+        $doctorPhotoUrl = Storage::url(  $doctorData->doctor_photo);
         $doctorData->doctor_photo_url = $doctorPhotoUrl;
 
         return response()->json([
@@ -60,22 +63,34 @@ class DoctorController extends Controller
         }
 
         $imageName = Str::random(32) . "." . $request->doctor_photo->getClientOriginalExtension();
-        $filePath = 'doctor_photo/' . $imageName;
+        $filePath = 'doctors-profile-photo/' . $imageName;
         Storage::disk('public')->put($filePath, file_get_contents($request->doctor_photo));
         $doctor->doctor_photo = $imageName;
         $doctor->save();
 
-        return response()->json(['message' => 'Doctor Profile image uploaded successfully'], 201);
+        $doctorPhotoUrl = Storage::url($filePath);
+
+        return response()->json([
+            'message' => 'Doctor Profile image uploaded successfully',
+            'doctor_photo_url' => $doctorPhotoUrl
+        ], 201);
     }
 
-    public function allDoctors ()
+    public function allDoctors()
     {
-        $doctors = Doctor::all();
-        if($doctors) return ([
-            "Status"=>200,
+        $doctors = Doctor::paginate(20);
+
+        foreach ($doctors as $doctor) {
+            $doctorPhotoUrl = Storage::url($doctor->doctor_photo);
+            $doctor->doctor_photo_url = $doctorPhotoUrl;
+        }
+
+        return response()->json([
+            "Status" => 200,
             "All doctors" => $doctors
         ]);
     }
+
     protected function createNewToken($token)
     {
         return response()->json([

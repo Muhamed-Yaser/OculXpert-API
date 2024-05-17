@@ -30,7 +30,7 @@ class UserController extends Controller
             return response()->json($validator->errors(), 422);
         }
         if (!$token = auth()->guard('user')->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Email or Password is worng'], 200);
         }
         return $this->createNewToken($token);
     }
@@ -43,40 +43,51 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $imageName = Str::random(32) . "." . $request->file('user_photo')->getClientOriginalExtension();
-
         $user = User::create([
             "name" => $request->input("name"),
             "email" => $request->input("email"),
             "password" => Hash::make($request->input("password")),
-            "user_photo" => $imageName,
         ]);
 
-        Storage::disk('public')->put($imageName, file_get_contents($request->file('user_photo')));
+        $userPhoto = $request->file('user_photo');
+
+        if ($userPhoto) {
+            $userPhoto->store('user_photo', 'public'); // Stores the file in the public disk
+            $user->user_photo = $userPhoto->hashName(); // Save the filename in the user model
+            $user->save(); // Save the user object
+        }
 
         $verificationToken = $this->generateToken($request->input("email"));
+
+        $userPhotoUrl = null;
+
+        if ($userPhoto) {
+            $userPhotoPath = $user->user_photo;
+            $userPhotoUrl = url('storage/user_photo/' . $userPhotoPath);
+        }
 
         return response()->json([
             'message' => 'User successfully registered',
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'user_photo' => $user->user_photo,
+                'user_photo' => $userPhotoUrl,
             ],
             'verification_token' => $verificationToken->verification_token,
         ], 201);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
+        $email = $request->input('email');
 
-        auth()->guard('user')->logout();
-        return response()->json(['message' => 'User successfully signed out']);
+        $user = User::where('email', $email)->first();
+
+        if ($user) return response()->json(['message' => 'User successfully signed out']);
     }
 
     public function userProfile(Request $request)
     {
-
         $email = $request->input('email');
 
         $user = User::where('email', $email)->first();
@@ -88,12 +99,28 @@ class UserController extends Controller
             ], 404);
         }
 
+        $profilePhotoUrl = null;
+        if ($user->user_photo) {
+            $profilePhotoPath = $user->user_photo;
+            $profilePhotoUrl = url('storage/user_photo/' . $profilePhotoPath);
+        }
+
         $images = Image::where('user_id', $user->id)->get('filename');
+
+        $imageUrls = [];
+
+        foreach ($images as $image) {
+            $imageUrls[] = url('storage/follow-up/' . $image->filename);
+        }
 
         return response()->json([
             'status' => '200',
-            'user' => $user ,
-            'images' => $images
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'user_photo' => $profilePhotoUrl,
+            ],
+            'image_urls' => $imageUrls
         ]);
     }
 
@@ -110,12 +137,19 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
+        if ($user->user_photo) {
+            // Delete the previous profile photo if it exists
+            Storage::disk('public')->delete($user->user_photo);
+        }
+
         $imageName = Str::random(32) . "." . $request->user_photo->getClientOriginalExtension();
-        Storage::disk('public')->put($imageName, file_get_contents($request->user_photo));
+        $request->user_photo->storeAs('user_photo', $imageName, 'public');
         $user->user_photo = $imageName;
         $user->save();
 
-        return response()->json(['message' => 'Profile image uploaded successfully'], 200);
+        $profilePhotoUrl = url('storage/user_photo/' . $imageName);
+
+        return response()->json(['message' => 'Profile image uploaded successfully', 'user_photo_url' => $profilePhotoUrl], 200);
     }
 
     protected function createNewToken($token)
